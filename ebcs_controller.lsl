@@ -102,7 +102,7 @@ default {
                 if(agent){
                     if(llLinksetDataRead((string)agent)){
                         llLinksetDataDelete((string)agent); // Clear any previous data for the agent
-                        llRegionSayTo(agent, 0, "Re-sending experience permissions request...");
+                        llRegionSayTo(agent, 0, "Request recieved...");
                     }
                 }
             }
