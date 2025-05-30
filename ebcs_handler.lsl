@@ -91,9 +91,6 @@ default
 
     experience_permissions_denied(key agent_id, integer reason)
     {
-        if (llGetAttached()) {
-            llDetachFromAvatar();
-        }
         llDie(); 
     }
 
