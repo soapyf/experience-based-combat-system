@@ -126,7 +126,7 @@ default {
         // We store some data in linkset memory to track if agents have granted experience permissions
         // or if they have been notified about the experience. this is to prevent spamming the agent with notifications.
         //
-        // This data shouldnt be filled up since its deleted when an agent grants permissions but we check it anyway.
+        // Clear this data if memory reaches over 95% 
 
         integer percent_used_memory = (131072 - llLinksetDataAvailable()) * 100 / 131072; // Calculate percentage of used memory based off 128 KiB total memory
         if(percent_used_memory > 95){
