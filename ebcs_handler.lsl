@@ -1,3 +1,8 @@
+// This script should be placed inside an object that will be attached to avatars that have granted experience permissions inside your combat region
+// After adding this script to an object make sure you compile it with an experience found at the bottom of the script window when editing inside of an object
+// Pick up a copy after that and place it inside an object along with the controller script
+// It is advised that you set this script to "no modify" to prevent users from tampering with it once its been attached to their avatar
+
 vector attacker_spawn = <244,245,21>;
 vector defender_spawn = <8,12,21>;
 
