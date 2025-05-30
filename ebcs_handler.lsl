@@ -3,12 +3,12 @@
 // Pick up a copy of the new object containing the obcs_handler.lsl script and place it inside an object along with the ebcs_controller.lsl script
 // It is advised that you set this script to "no modify" to prevent users from tampering with it once its been attached to their avatar
 
+// Example Spawnpoints. Replace with your own
 vector attacker_spawn = <244,245,21>;
 vector defender_spawn = <8,12,21>;
 
 list defender_groups = [
-    "64064c89-25aa-008b-cfe7-0c34e28ae523", 
-    "86376bab-a5c9-d551-1866-7f6ac222c96f"
+    // Populate this list with any groups you would like to be considered 'defenders'
 ];
 // Example safezone coordinates: bottom_southwest, top_northeast
 list safezones = [
