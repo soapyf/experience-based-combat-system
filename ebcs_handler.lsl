@@ -1,29 +1,20 @@
-// This script should be placed inside an object that will be attached to avatars that have granted experience permissions inside your combat region
-// After adding this script to an object make sure you compile it with an experience found at the bottom of the script window when editing inside of an object
-// Pick up a copy of the new object containing the obcs_handler.lsl script and place it inside an object along with the ebcs_controller.lsl script
-// It is advised that you set this script to "no modify" to prevent users from tampering with it once its been attached to their avatar
-
-// Example Spawnpoints. Replace with your own
-vector attacker_spawn = <244,245,21>;
-vector defender_spawn = <8,12,21>;
+vector attacker_spawn;
+vector defender_spawn;
 
 list defender_groups = [
     // Populate this list with any groups you would like to be considered 'defenders'
 ];
-// Example safezone coordinates: bottom_southwest, top_northeast
-list safezones = [
-    <0,0,500>, <256,256,4096>, // Example safezone covering the entire region above z=500
-    <0,0,20>, <18,23,28>, // Example safezone in the southwest corner
-    <239,234,20>, <255,255,28> // Example safezone in the northeast corner
-];
+
+list safezones;
 
 key agent;
+key parent;
 
 integer in_safezone(vector pos) {
     integer count = llGetListLength(safezones);
     integer i;for (; i < count; i += 2) {
-        vector bottom_southwest = llList2Vector(safezones, i);
-        vector top_northeast = llList2Vector(safezones, i + 1);
+        vector bottom_southwest = (vector)llList2String(safezones, i);
+        vector top_northeast = (vector)llList2String(safezones, i + 1);
         if (pos.x >= bottom_southwest.x && pos.x <= top_northeast.x &&
             pos.y >= bottom_southwest.y && pos.y <= top_northeast.y &&
             pos.z >= bottom_southwest.z && pos.z <= top_northeast.z) {
@@ -58,7 +49,13 @@ default
 {
     on_rez(integer start_param)
     {
-        agent = (key)llGetStartString();
+        string start = llGetStartString();
+        agent = (key)llJsonGetValue(start, ["agent"]);
+        attacker_spawn = (vector)llJsonGetValue(start, ["attacker_spawn"]);
+        defender_spawn = (vector)llJsonGetValue(start, ["defender_spawn"]);
+        safezones = llParseString2List(llJsonGetValue(start, ["safezones"]), ["|"], [""]);
+        parent = llList2Key(llGetObjectDetails(llGetKey(), [OBJECT_REZZER_KEY]),0);
+
         if (agent) {
             llRequestExperiencePermissions(agent, "");
             llSetTimerEvent(30); // Self destruct after 30 seconds if not attached
@@ -72,6 +69,7 @@ default
             llSetTimerEvent(0);
             llListen(-56175,"","","attach");
             llWhisper(-56175,"attach");
+            llOwnerSay("Ready.");
         }
     }
     timer()
@@ -82,9 +80,22 @@ default
         }
     }
 
+    listen(integer channel, string name, key id, string message)
+    {
+        if (channel == -56175) {
+            if(llGetOwnerKey(id) == agent || id == parent){
+                if (message == "attach") {
+                    llOwnerSay("Detaching");
+                    llRequestPermissions(llGetOwner(), PERMISSION_ATTACH);
+                }
+            }
+        }
+    }
+    
     experience_permissions(key agent_id)
     {
         if (!llGetAttached()) {
+            
             llAttachToAvatarTemp(ATTACH_HUD_TOP_CENTER);
         }
     }
@@ -98,6 +109,7 @@ default
     changed(integer change)
     {
         if (change & CHANGED_REGION_START) {
+            llOwnerSay("Detaching due to unsupported region.");
             llRequestPermissions(llGetOwner(), PERMISSION_ATTACH);
         }
     }
