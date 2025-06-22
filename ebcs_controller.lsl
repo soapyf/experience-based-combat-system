@@ -2,13 +2,15 @@
 // Place this script along with an object containing the configured ebcs_handler.lsl script into an object in your region
 // Compile this script with the same experience you compile ebcs_handler.lsl or it will not function correctly
 
-string hud_name = "EBCS HUD v1.0";
+string hud_name = "EBCS HUD v1.1";
 
 // Example safezone coordinates: bottom_southwest, top_northeast
 list safezones = [
     <0,0,500>, <256,256,4096> // Example safezone covering an entire region above 500m
 ];
 
+vector attacker_spawn = <243,239,26>; // Example attacker spawn point
+vector defender_spawn = <15,13,27>; // Example defender spawn point
 
 integer active_huds;
 
@@ -56,7 +58,15 @@ handle_agent(key agent) {
     // Check if the agent is part of the experience
     if (llAgentInExperience(agent)) {
         if (free_slot(agent)) {
-            llRezObjectWithParams(hud_name, [REZ_PARAM_STRING, (string)agent]);
+            llRezObjectWithParams(hud_name, [
+                REZ_FLAGS, REZ_FLAG_TEMP,
+                REZ_PARAM_STRING, llList2Json(JSON_OBJECT , [
+                    "agent", (string)agent,
+                    "attacker_spawn", attacker_spawn,
+                    "defender_spawn", defender_spawn,
+                    "safezones", llDumpList2String(safezones, "|")
+                ])
+            ]);
             llLinksetDataDelete((string)agent);
         } 
         else if (status != "notified") {
@@ -74,6 +84,7 @@ handle_agent(key agent) {
 
 default {
     state_entry() {
+        llRegionSay(-56175,"attach");
         llListen(-5722745, "", "", "");
         llListen(COMBAT_CHANNEL, "", COMBAT_LOG_ID, "");
         llSetTimerEvent(5.0);
@@ -149,5 +160,3 @@ default {
         }
     }
 }
-
-
