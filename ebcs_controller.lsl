@@ -2,7 +2,7 @@
 // Place this script along with an object containing the configured ebcs_handler.lsl script into an object in your region
 // Compile this script with the same experience you compile ebcs_handler.lsl or it will not function correctly
 
-string hud_name = "EBCS HUD v1.1";
+string hud_name = "Resdayn EBCS HUD v1.1";
 
 // Example safezone coordinates: bottom_southwest, top_northeast
 list safezones = [

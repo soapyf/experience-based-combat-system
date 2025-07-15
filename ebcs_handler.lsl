@@ -1,16 +1,12 @@
-// This script should be placed inside an object that will be attached to avatars that have granted experience permissions inside your combat region
-// After adding this script to an object make sure you compile it with an experience found at the bottom of the script window when editing inside of an object
-// Pick up a copy of the new object containing the ebcs_handler.lsl script and place it inside an object along with the ebcs_controller.lsl script
-// It is advised that you set this script to "no modify" to prevent users from tampering with it once its been attached to their avatar
-
 vector attacker_spawn;
 vector defender_spawn;
 
 list defender_groups = [
-    // Populate this list with any groups you would like to be considered 'defenders'
+    "64064c89-25aa-008b-cfe7-0c34e28ae523", 
+    "86376bab-a5c9-d551-1866-7f6ac222c96f"
 ];
-
-list safezones;
+// Example safezone coordinates: bottom_southwest, top_northeast
+list safezones = [];
 
 key agent;
 key parent;
