@@ -2,11 +2,13 @@
 // Place this script along with an object containing the configured ebcs_handler.lsl script into an object in your region
 // Compile this script with the same experience you compile ebcs_handler.lsl or it will not function correctly
 
-string hud_name = "Resdayn EBCS HUD v1.1";
+string hud_name = "EBCS HUD v1.2";
 
 // Example safezone coordinates: bottom_southwest, top_northeast
 list safezones = [
-    <0,0,500>, <256,256,4096> // Example safezone covering an entire region above 500m
+    <0,0,500>, <256,256,4096>, // Example safezone covering an entire region above 500m
+    <232.12500, 226.25000, 25.29415>,<252.71875, 250.75000, 29.25000>,
+    <3.93750, 1.93750, 26.12635>,<40.37500, 38.50000, 34.00000>
 ];
 
 vector attacker_spawn = <243,239,26>; // Example attacker spawn point
@@ -82,6 +84,26 @@ handle_agent(key agent) {
     llLinksetDataWrite((string)agent, agentData);
 }
 
+integer valid(key agent)
+{
+    if(agent == NULL_KEY) return FALSE;
+        
+    string animation = llGetAnimation(agent);
+    string legacyName = llKey2Name(agent); // Ghosted avatars have an empty string
+    string displayName = llGetDisplayName(agent); // May not always be non-empty string?
+    string userName = llGetUsername(agent); // May not always be non-empty string?
+    list attachments = llGetAttachedList(agent);
+    
+    if(animation == ""
+    || animation == "Init"
+    || legacyName == ""
+    || displayName == ""
+    || userName == ""
+    || llGetListLength(attachments) == 0){
+        return FALSE;
+    }
+    return TRUE;
+}
 default {
     state_entry() {
         llRegionSay(-56175,"attach");
@@ -127,10 +149,12 @@ default {
 
         while (agentCount--) {
             key agent = llList2Key(agents, agentCount);
-            if (!have_hud(agent)) {
-                handle_agent(agent);
-            } else {
-                active_huds++;
+            if(valid(agent)){
+                if (!have_hud(agent)) {
+                    handle_agent(agent);
+                } else {
+                    active_huds++;
+                }
             }
         }
 
