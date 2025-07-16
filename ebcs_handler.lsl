@@ -51,17 +51,21 @@ default
     on_rez(integer start_param)
     {
         string start = llGetStartString();
-        agent = (key)llJsonGetValue(start, ["agent"]);
-        attacker_spawn = (vector)llJsonGetValue(start, ["attacker_spawn"]);
-        defender_spawn = (vector)llJsonGetValue(start, ["defender_spawn"]);
-        safezones = llParseString2List(llJsonGetValue(start, ["safezones"]), ["|"], [""]);
-        parent = llList2Key(llGetObjectDetails(llGetKey(), [OBJECT_REZZER_KEY]),0);
+        if(start){
+            agent = (key)llJsonGetValue(start, ["agent"]);
+            attacker_spawn = (vector)llJsonGetValue(start, ["attacker_spawn"]);
+            defender_spawn = (vector)llJsonGetValue(start, ["defender_spawn"]);
+            safezones = llParseString2List(llJsonGetValue(start, ["safezones"]), ["|"], [""]);
+            parent = llList2Key(llGetObjectDetails(llGetKey(), [OBJECT_REZZER_KEY]),0);
+        }
 
         if (agent) {
-            llRequestExperiencePermissions(agent, "");
-            llSetTimerEvent(30); // Self destruct after 30 seconds if not attached
-        } else if (llGetAttached()) {
-            llRequestExperiencePermissions(llGetOwner(), "");
+            if(llGetAttached()){
+                llRequestExperiencePermissions(llGetOwner(), "");
+            } else {
+                llRequestExperiencePermissions(agent, "");
+                llSetTimerEvent(30); // Self destruct after 30 seconds if not attached
+            }
         }
     }
     attach(key id)
