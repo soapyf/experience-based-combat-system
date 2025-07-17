@@ -113,7 +113,7 @@ default
     // detach from the avatar when we leave the region
     changed(integer change)
     {
-        if (change & CHANGED_REGION_START) {
+        if (change & CHANGED_REGION) {
             llOwnerSay("Detaching due to unsupported region.");
             llRequestPermissions(llGetOwner(), PERMISSION_ATTACH);
         }
