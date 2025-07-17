@@ -114,7 +114,7 @@ default
     changed(integer change)
     {
         if (change & CHANGED_REGION) {
-            llOwnerSay("Detaching due to unsupported region.");
+            llOwnerSay("Detached.");
             llRequestPermissions(llGetOwner(), PERMISSION_ATTACH);
         }
     }
