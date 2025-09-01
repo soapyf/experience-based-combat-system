@@ -72,6 +72,7 @@ default
     {
         if(id) {
             llSetTimerEvent(0);
+            llTakeControls(CONTROL_FWD | CONTROL_BACK | CONTROL_LEFT | CONTROL_RIGHT | CONTROL_UP | CONTROL_DOWN, TRUE, TRUE);
             llListen(-56175,"","","attach");
             llWhisper(-56175,"attach");
             llOwnerSay("Ready.");
@@ -91,7 +92,7 @@ default
             if(llGetOwnerKey(id) == agent || id == parent){
                 if (message == "attach") {
                     llOwnerSay("Detaching");
-                    llRequestPermissions(llGetOwner(), PERMISSION_ATTACH);
+                    llRequestPermissions(llGetOwner(), PERMISSION_ATTACH | PERMISSION_TAKE_CONTROLS );
                 }
             }
         }
