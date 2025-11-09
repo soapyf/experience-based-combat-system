@@ -55,7 +55,6 @@ handle_agent(key agent) {
 
     // Get the current status of the agent
     string status = llJsonGetValue(agentData, ["status"]); 
-    string exp_status = llJsonGetValue(agentData, ["exp_status"]);
 
     // Check if the agent is part of the experience
     if (llAgentInExperience(agent) && rezqueue == FALSE && status != "hud_rezzed") {
