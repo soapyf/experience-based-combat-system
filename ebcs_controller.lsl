@@ -2,7 +2,7 @@
 // Place this script along with an object containing the configured ebcs_handler.lsl script into an object in your region
 // Compile this script with the same experience you compile ebcs_handler.lsl or it will not function correctly
 
-string hud_name = "EBCS HUD v1.2";
+string hud_name = "Resdayn EBCS HUD v1.2";
 
 // Example safezone coordinates: bottom_southwest, top_northeast
 list safezones = [
@@ -15,7 +15,7 @@ vector attacker_spawn = <243,239,26>; // Example attacker spawn point
 vector defender_spawn = <15,13,27>; // Example defender spawn point
 
 integer active_huds;
-
+integer rezqueue = FALSE;
 
 
 integer have_hud(key id) {
@@ -58,9 +58,9 @@ handle_agent(key agent) {
     string exp_status = llJsonGetValue(agentData, ["exp_status"]);
 
     // Check if the agent is part of the experience
-    if (llAgentInExperience(agent)) {
+    if (llAgentInExperience(agent) && rezqueue == FALSE && status != "hud_rezzed") {
         if (free_slot(agent)) {
-            llRezObjectWithParams(hud_name, [
+            key hud_key = llRezObjectWithParams(hud_name, [
                 REZ_FLAGS, REZ_FLAG_TEMP,
                 REZ_PARAM_STRING, llList2Json(JSON_OBJECT , [
                     "agent", (string)agent,
@@ -69,16 +69,23 @@ handle_agent(key agent) {
                     "safezones", llDumpList2String(safezones, "|")
                 ])
             ]);
-            llLinksetDataDelete((string)agent);
+            if(hud_key != NULL_KEY){
+                agentData = llJsonSetValue(agentData, ["status"], "hud_rezzed");
+                llLinksetDataWrite(hud_key, (string)agent); // Store the hud key with agent key, this will be used to delete the data from the linkset when it is successfully rezzed
+            } else {
+                rezqueue = TRUE; // Set rezqueue to true to prevent further rez attempts until the next timer event
+            }
+            
+            //llLinksetDataDelete((string)agent);
         } 
         else if (status != "notified") {
             // Notify the agent about the lack of free attachment slots
             llRegionSayTo(agent, 0, "A free attachment slot is required to participate in combat. Please clear an attachment slot.");
             agentData = llJsonSetValue(agentData, ["status"], "notified");
         }
-    } else if (exp_status != "requested") {
+    } else if (status != "experience_permissions_requested") {
         llRequestExperiencePermissions(agent, "");
-        agentData = llJsonSetValue(agentData, ["exp_status"], "requested");
+        agentData = llJsonSetValue(agentData, ["status"], "experience_permissions_requested");
     }
 
     llLinksetDataWrite((string)agent, agentData);
@@ -110,6 +117,7 @@ default {
         llListen(-5722745, "", "", "");
         llListen(COMBAT_CHANNEL, "", COMBAT_LOG_ID, "");
         llSetTimerEvent(5.0);
+        llLinksetDataReset();
         llOwnerSay("Combat System Online.");
     }
 
@@ -169,6 +177,16 @@ default {
         }
         // Update display
         llSetText("Active HUDs: " + (string)active_huds +"\nMem: "+(string)percent_used_memory+"%" , <1,1,1>, 1.0);
+    }
+
+    object_rez(key id)
+    {
+        rezqueue = FALSE; // Reset rezqueue flag on object rez event
+        key agentData = (key)llLinksetDataRead((string)id);
+        if (agentData != NULL_KEY) {
+            llLinksetDataDelete((string)agentData); // Delete the agent data associated with this hud
+            llLinksetDataDelete((string)id); // Delete the hud data
+        }
     }
 
     experience_permissions(key agent_id) {
