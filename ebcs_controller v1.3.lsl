@@ -196,7 +196,7 @@ default {
     experience_permissions_denied(key agent_id, integer reason) {
         string agentData = llLinksetDataRead((string)agent_id); 
         if (llJsonGetValue(agentData, ["status"]) != "notified") {
-            llRegionSayTo(agent_id, 0, "By declining the experience, you cannot use the combat system in this region. If you die, you will be teleported home. To join click an experience kiosk and ensure you have a free attachment slot.");
+            llRegionSayTo(agent_id, 0, "By declining the experience, you cannot use the combat system in this region. If you die, you will be teleported home. Ensure you have a free attachment slot. You can see details about the experience and join it here: secondlife:///app/experience/" + llList2String(llGetExperienceDetails(NULL_KEY), 2) + "/profile");
             llLinksetDataWrite((string)agent_id, llJsonSetValue(agentData, ["status"], "notified"));
         }
     }
