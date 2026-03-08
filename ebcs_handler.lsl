@@ -26,22 +26,11 @@ integer in_safezone(vector pos) {
 }
 
 integer is_defender(key id) {
-    list attached_objects = llGetAttachedList(id);
-    integer count = llGetListLength(attached_objects);
-
-    integer i;
-    for (i = 0; i < count; ++i) {
-        key object_id = llList2Key(attached_objects, i);
-        list details = llGetObjectDetails(object_id, [OBJECT_GROUP]);
-        
-        if (llGetListLength(details) > 0) {
-            key group_id = llList2Key(details, 0);
-            if (llListFindList(defender_groups, [(string)group_id]) != -1) {
-                return TRUE; // Object belongs to a defender group
-            }
-        }
-    }
-    return FALSE; // No attached objects belong to a defender group
+    key attached = llList2Key(llGetAttachedList(id),0);
+    string group = (string)llGetObjectDetails(attached, [OBJECT_GROUP]);
+    
+    if (llListFindList(defender_groups, [group]) != -1) return TRUE;
+    return FALSE;
 }
     
 
