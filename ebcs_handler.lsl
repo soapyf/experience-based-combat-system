@@ -1,11 +1,11 @@
 vector attacker_spawn;
 vector defender_spawn;
+vector spawn;
+integer safe;
+integer target;
+list defender_groups = [];
 
-list defender_groups = [
-    "64064c89-25aa-008b-cfe7-0c34e28ae523", 
-    "86376bab-a5c9-d551-1866-7f6ac222c96f"
-];
-// Example safezone coordinates: bottom_southwest, top_northeast
+// vector bottom_southwest, vector top_northeast
 list safezones = [];
 
 key agent;
@@ -13,7 +13,9 @@ key parent;
 
 integer in_safezone(vector pos) {
     integer count = llGetListLength(safezones);
-    integer i;for (; i < count; i += 2) {
+    if (!count) return FALSE;
+    integer i;
+    for (i = 0; i < count; i += 2) {
         vector bottom_southwest = (vector)llList2String(safezones, i);
         vector top_northeast = (vector)llList2String(safezones, i + 1);
         if (pos.x >= bottom_southwest.x && pos.x <= top_northeast.x &&
@@ -65,7 +67,21 @@ default
             llListen(-56175,"","","attach");
             llWhisper(-56175,"attach");
             llOwnerSay("Ready.");
+            if(is_defender(agent)) {
+                spawn = defender_spawn;
+            } else {
+                spawn = attacker_spawn;
+            }
+
+            target = llTarget(llGetPos(), 3.0);
         }
+    }
+    not_at_target()
+    {
+        llTargetRemove(target);
+        vector pos = llGetPos();
+        safe = in_safezone(pos);
+        target = llTarget(pos, 3.0);
     }
     timer()
     {
@@ -94,7 +110,6 @@ default
             llAttachToAvatarTemp(ATTACH_HUD_TOP_CENTER);
         }
     }
-
     experience_permissions_denied(key agent_id, integer reason)
     {
         llDie(); 
@@ -105,7 +120,7 @@ default
     {
         if (change & CHANGED_REGION) {
             llOwnerSay("Detached.");
-            llRequestPermissions(llGetOwner(), PERMISSION_ATTACH);
+            llRequestPermissions(agent, PERMISSION_ATTACH);
         }
     }
     run_time_permissions(integer perm)
@@ -116,20 +131,13 @@ default
     }
 
     on_damage(integer count) {
-        while(count--) {
-            if(in_safezone(llGetPos())) {
-                llAdjustDamage(count,0);
-            }
+        if(!safe) return;
+        while(count --) { 
+            llAdjustDamage(count,0);
         }
     }
 
     on_death() {
-        if(!in_safezone(llGetPos())) {
-            if(is_defender(llGetOwner())) {
-                llTeleportAgent(llGetOwner(), "", defender_spawn, attacker_spawn);
-            } else {
-                llTeleportAgent(llGetOwner(), "", attacker_spawn, defender_spawn);
-            }
-        }
+        llTeleportAgent(agent, "", spawn, <128,128,1>);
     }
 }
