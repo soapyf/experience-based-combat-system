@@ -145,10 +145,11 @@ default
                 return;
             }
             
-            float amount = llList2Float(llDetectedDamage(count), 0);
-            float currentHP = llGetHealth(llGetOwner());
+            // subtract incoming damage from the currently remaining agent health
+            float newHP = llGetHealth(llGetOwner()) -  llList2Float(llDetectedDamage(count), 0);
             
-            if(amount > currentHP)
+            // if newHP is less than or equal to zero the incoming damage has killed the agent and we need to intercept the regions teleport home function
+            if(newHP <= 0)
             {
                 dead = TRUE;
                 llAdjustDamage(count,0);
@@ -156,8 +157,4 @@ default
             }
         }
     }
-
-    //on_death() {
-    //    llTeleportAgent(agent, "", spawnPoint, <128,128,1>);
-    //}
 }
